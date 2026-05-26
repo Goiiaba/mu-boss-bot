@@ -15,6 +15,8 @@ bot = commands.Bot(
 
 FUSO = ZoneInfo("America/Sao_Paulo")
 
+CARGO = "<@&1275524067901968571>"
+
 bosses = {
     "kharzul": (7, 8),
     "vescrya": (7, 8),
@@ -28,7 +30,14 @@ bosses = {
     "muggron": (7, 8)
 }
 
-async def alerta(channel, nome, servidor, abrir, fechar):
+
+async def alerta(
+    channel,
+    nome,
+    servidor,
+    abrir,
+    fechar
+):
 
     agora = datetime.now(FUSO)
 
@@ -42,8 +51,13 @@ async def alerta(channel, nome, servidor, abrir, fechar):
         await asyncio.sleep(espera)
 
     await channel.send(
-        f"⚠️ {nome.upper()} [{servidor.upper()}]\n"
-        f"Faltam 10 minutos para abrir."
+f"""
+{CARGO}
+
+⚠️ {nome.upper()} [{servidor.upper()}]
+
+Faltam 10 minutos para abrir a janela.
+"""
     )
 
     agora = datetime.now(FUSO)
@@ -58,15 +72,23 @@ async def alerta(channel, nome, servidor, abrir, fechar):
         await asyncio.sleep(espera)
 
     await channel.send(
-        f"🔴 {nome.upper()} [{servidor.upper()}]\n"
-        f"Faltam 10 minutos para encerrar."
+f"""
+{CARGO}
+
+🔴 {nome.upper()} [{servidor.upper()}]
+
+Faltam 10 minutos para encerrar.
+"""
     )
+
 
 @bot.event
 async def on_ready():
+
     print(
         f"Bot online como {bot.user}"
     )
+
 
 @bot.command()
 async def testealerta(ctx):
@@ -77,20 +99,29 @@ async def testealerta(ctx):
     )
 
     if not canal:
+
         await ctx.send(
             "Canal alerta-boss não encontrado"
         )
+
         return
 
     await ctx.send(
         "Teste iniciado (10 segundos)"
     )
 
-    await asyncio.sleep(10)
+    await asyncio.sleep(
+        10
+    )
 
     await canal.send(
-        "🚨 TESTE FUNCIONANDO"
+f"""
+{CARGO}
+
+🚨 TESTE FUNCIONANDO
+"""
     )
+
 
 @bot.command()
 async def boss(
@@ -108,6 +139,7 @@ async def boss(
         return
 
     nome = nome.lower()
+
     servidor = servidor.lower()
 
     if nome not in bosses:
@@ -120,7 +152,9 @@ async def boss(
 
     min_h, max_h = bosses[nome]
 
-    agora = datetime.now(FUSO)
+    agora = datetime.now(
+        FUSO
+    )
 
     abrir = (
         agora
@@ -154,7 +188,9 @@ async def boss(
         )
 
     await ctx.send(
-        f"""
+f"""
+{CARGO}
+
 🔥 {nome.upper()} [{servidor.upper()}]
 
 ☠️ Morto:
@@ -167,8 +203,11 @@ async def boss(
 """
     )
 
+
 TOKEN = os.getenv(
     "TOKEN"
 )
 
-bot.run(TOKEN)
+bot.run(
+    TOKEN
+)
