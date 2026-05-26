@@ -3,7 +3,7 @@ from discord.ext import commands
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 import os
-
+import asyncio
 intents = discord.Intents.default()
 intents.message_content = True
 
@@ -46,13 +46,53 @@ async def boss(ctx, nome=None, servidor=None):
     agora = datetime.now(FUSO)
     min_spawn = agora + timedelta(hours=min_h)
     max_spawn = agora + timedelta(hours=max_h)
+canal = discord.utils.get(
+    ctx.guild.text_channels,
+    name="alerta-boss"
+)
 
+if canal:
+    asyncio.create_task(
+        avisar(
+            canal,
+            nome,
+            servidor,
+            min_spawn,
+            max_spawn
+        )
+    )
     await ctx.send(
         f"🔥 **{nome.upper()} [{servidor.upper()}]**\n\n"
         f"☠️ Morto às **{agora.strftime('%H:%M')}**\n\n"
         f"⏳ Próximo spawn:\n"
         f"**{min_spawn.strftime('%H:%M')} ~ {max_spawn.strftime('%H:%M')}**\n\n"
         f"📌 Comando usado: `!boss {nome} {servidor}`"
+    )
+
+async def avisar(channel, nome, servidor, abrir, fechar):
+
+    agora = datetime.now(FUSO)
+
+    espera1 = (abrir - timedelta(minutes=10) - agora).total_seconds()
+
+    if espera1 > 0:
+        await asyncio.sleep(espera1)
+
+    await channel.send(
+        f"⚠️ {nome.upper()} [{servidor.upper()}]\n\n"
+        f"Faltam 10 minutos para abrir a janela."
+    )
+
+    agora = datetime.now(FUSO)
+
+    espera2 = (fechar - timedelta(minutes=10) - agora).total_seconds()
+
+    if espera2 > 0:
+        await asyncio.sleep(espera2)
+
+    await channel.send(
+        f"🔴 {nome.upper()} [{servidor.upper()}]\n\n"
+        f"Faltam 10 minutos para ENCERRAR a janela."
     )
 
 TOKEN = os.getenv("TOKEN")
