@@ -11,6 +11,7 @@ intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 FUSO = ZoneInfo("America/Sao_Paulo")
+
 CARGO = "<@&1275524067901968571>"
 
 tarefas_alerta = []
@@ -28,10 +29,23 @@ bosses = {
     "muggron": (3, 4)
 }
 
-async def alerta(channel, nome, servidor, abrir, fechar):
+
+async def alerta(
+    channel,
+    nome,
+    servidor,
+    abrir
+):
+
     try:
+
         agora = datetime.now(FUSO)
-        espera = (abrir - timedelta(minutes=10) - agora).total_seconds()
+
+        espera = (
+            abrir
+            - timedelta(minutes=10)
+            - agora
+        ).total_seconds()
 
         if espera > 0:
             await asyncio.sleep(espera)
@@ -46,38 +60,38 @@ Faltam 10 minutos para abrir a janela.
 """
         )
 
-        agora = datetime.now(FUSO)
-        espera = (fechar - timedelta(minutes=10) - agora).total_seconds()
-
-        if espera > 0:
-            await asyncio.sleep(espera)
-
-        await channel.send(
-f"""
-{CARGO}
-
-🔴 {nome.upper()} [{servidor.upper()}]
-
-Faltam 10 minutos para encerrar.
-"""
-        )
-
     except asyncio.CancelledError:
         return
 
+
 @bot.event
 async def on_ready():
-    print(f"Bot online como {bot.user}")
+
+    print(
+        f"Bot online como {bot.user}"
+    )
+
 
 @bot.command()
 async def testealerta(ctx):
-    canal = discord.utils.get(ctx.guild.text_channels, name="alerta-boss")
+
+    canal = discord.utils.get(
+        ctx.guild.text_channels,
+        name="alerta-boss"
+    )
 
     if not canal:
-        await ctx.send("Canal alerta-boss não encontrado")
+
+        await ctx.send(
+            "Canal alerta-boss não encontrado"
+        )
+
         return
 
-    await ctx.send("Teste iniciado (10 segundos)")
+    await ctx.send(
+        "Teste iniciado (10 segundos)"
+    )
+
     await asyncio.sleep(10)
 
     await canal.send(
@@ -88,8 +102,10 @@ f"""
 """
     )
 
+
 @bot.command()
 async def desligartodos(ctx):
+
     total = len(tarefas_alerta)
 
     for tarefa in tarefas_alerta:
@@ -105,32 +121,70 @@ Alertas cancelados: {total}
 """
     )
 
+
 @bot.command()
-async def boss(ctx, nome=None, servidor=None):
+async def boss(
+    ctx,
+    nome=None,
+    servidor=None
+):
+
     if not nome or not servidor:
-        await ctx.send("Use: !boss kharzul s1")
+
+        await ctx.send(
+            "Use: !boss kharzul s1"
+        )
+
         return
 
     nome = nome.lower()
     servidor = servidor.lower()
 
     if nome not in bosses:
-        await ctx.send("Boss não encontrado")
+
+        await ctx.send(
+            "Boss não encontrado"
+        )
+
         return
 
     min_h, max_h = bosses[nome]
 
     agora = datetime.now(FUSO)
-    abrir = agora + timedelta(hours=min_h)
-    fechar = agora + timedelta(hours=max_h)
 
-    canal = discord.utils.get(ctx.guild.text_channels, name="alerta-boss")
+    abrir = (
+        agora
+        + timedelta(
+            hours=min_h
+        )
+    )
+
+    fechar = (
+        agora
+        + timedelta(
+            hours=max_h
+        )
+    )
+
+    canal = discord.utils.get(
+        ctx.guild.text_channels,
+        name="alerta-boss"
+    )
 
     if canal:
+
         tarefa = asyncio.create_task(
-            alerta(canal, nome, servidor, abrir, fechar)
+            alerta(
+                canal,
+                nome,
+                servidor,
+                abrir
+            )
         )
-        tarefas_alerta.append(tarefa)
+
+        tarefas_alerta.append(
+            tarefa
+        )
 
     await ctx.send(
 f"""
@@ -148,5 +202,11 @@ f"""
 """
     )
 
-TOKEN = os.getenv("TOKEN")
-bot.run(TOKEN)
+
+TOKEN = os.getenv(
+    "TOKEN"
+)
+
+bot.run(
+    TOKEN
+)
